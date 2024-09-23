@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Firebase from '../../db/firebase';
+import Spinner from '../../assets/spinner.gif'
 
 class Register extends Component {
     constructor(props) {
@@ -8,7 +9,9 @@ class Register extends Component {
             name: "",
             lastName: "",
             email: "",
-            password: ""
+            password: "",
+            birthDate: "",
+            loading: false
         }
 
     }
@@ -21,7 +24,8 @@ class Register extends Component {
     }
 
     onSave = async (db, data) => {
-        const { name, lastName, email, password } = data
+        this.handleChange({ name: "loading", value: true })
+        const { name, lastName, birthDate, email, password } = data
         await Firebase
             .auth()
             .createUserWithEmailAndPassword(email, password)
@@ -32,48 +36,83 @@ class Register extends Component {
                     .doc(user.uid)
                     .set({
                         name,
-                        lastName
+                        lastName,
+                        birthDate
                     })
+
+                this.handleChange({ name: "loading", value: false })
+                window.location.href = "./"
+            })
+            .catch(({ code }) => {
+                if (code === "auth/email-already-in-use") {
+                    alert("Usuário já cadastrado")
+                    window.location.href = "./"
+                }
             })
     }
 
+    goBack = () => window.location.href = "./"
+
     render() {
+        const { loading } = this.state
         return (
-            <div>
-                <h1>Cadastro</h1>
-                <input
-                    name="email"
-                    type="text"
-                    placeholder='E-mail'
-                    onChange={({ target: { name, value } }) => this.handleChange({ name, value })}
-                />
-                <br />
-                <input
-                    name="password"
-                    type="password"
-                    placeholder='Senha'
-                    onChange={({ target: { name, value } }) => this.handleChange({ name, value })}
-                />
-                <br />
-                <input
-                    name="name"
-                    type="text"
-                    placeholder='Nome'
-                    onChange={({ target: { name, value } }) => this.handleChange({ name, value })}
-                />
-                <br />
-                <input
-                    name="lastName"
-                    type="text"
-                    placeholder='Sobre Nome'
-                    onChange={({ target: { name, value } }) => this.handleChange({ name, value })}
-                />
-                <br />
-                <button
-                    onClick={() => this.onSave("user", this.state)}
-                >
-                    Salvar
-                </button>
+            <div className='container'>
+                <header className="header">
+                    CADASTRO
+                </header>
+                <main className='body'>
+                    <input
+                        name="name"
+                        type="text"
+                        placeholder='Nome'
+                        onChange={({ target: { name, value } }) => this.handleChange({ name, value })}
+                    />
+                    <input
+                        name="lastName"
+                        type="text"
+                        placeholder='Sobre Nome'
+                        onChange={({ target: { name, value } }) => this.handleChange({ name, value })}
+                    />
+                    <input
+                        name="birthDate"
+                        type="date"
+                        placeholder='Data Nascimento'
+                        onChange={({ target: { name, value } }) => this.handleChange({ name, value })}
+                    />
+                    <input
+                        name="email"
+                        type="text"
+                        placeholder='E-mail'
+                        onChange={({ target: { name, value } }) => this.handleChange({ name, value })}
+                    />
+                    <input
+                        name="password"
+                        type="password"
+                        placeholder='Senha'
+                        onChange={({ target: { name, value } }) => this.handleChange({ name, value })}
+                    />
+                    <div className='btn'>
+                        {!loading ? (
+                            <>
+                                <input
+                                    type='button'
+                                    value='Voltar'
+                                    onClick={this.goBack}
+                                />
+                                <input
+                                    type='button'
+                                    value='Salvar'
+                                    onClick={() => this.onSave("user", this.state)}
+                                />
+                            </>
+                        ) : (
+                            <div className='loading'>
+                                <img src={Spinner} width={50} height={50} />
+                            </div>
+                        )}
+
+                    </div>
+                </main>
             </div>
         );
     }

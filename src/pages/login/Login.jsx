@@ -40,13 +40,17 @@ class Login extends Component {
       })
   }
 
+  onRegister = async () => {
+    window.location.href = "./register"
+  }
+
   render() {
     const { error, data } = this.state
 
     return (
       <div className="container">
         <header className="header">
-          Login
+          LOGIN
         </header>
 
         <main className='body'>
@@ -64,17 +68,20 @@ class Login extends Component {
             onChange={({ target }) => this.handleChange(target)}
             value={data.password}
           />
-          <input
-            type='button'
-            value='Acessar'
-            onClick={() => this.onClick(data)}
-          />
+          {error === 0 && <span className='error'>Usuário ou senha incorretos!</span>}
+          <div className='btn'>
+            <input
+              type='button'
+              value='Cadastrar'
+              onClick={this.onRegister}
+            />
+            <input
+              type='button'
+              value='Acessar'
+              onClick={() => this.onClick(data)}
+            />
+          </div>
         </main>
-
-        <footer>
-          {error === 0 && <span>Usuário ou senha incorretos!</span>}
-          {error === 1 && <span>Acessado com sucesso!</span>}
-        </footer>
       </div>
     );
   }
